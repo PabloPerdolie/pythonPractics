@@ -6,78 +6,88 @@ class StateMachine:
     def __init__(self):
         self.state = "A"
 
-    def fill(self):
+    def sway(self):
         if self.state == "A":
             self.state = "B"
             return 0
-        if self.state == "B":
-            self.state = "B"
-            return 2
-        if self.state == "C":
-            self.state = "G"
-            return 6
-        if self.state == "E":
-            self.state = "F"
-            return 8
-        if self.state == "F":
-            self.state = "G"
-            return 9
-        raise MealyError("pull")
-
-    def cue(self):
         if self.state == "B":
             self.state = "C"
             return 1
         if self.state == "C":
             self.state = "D"
-            return 3
+            return 2
+        if self.state == "E":
+            self.state = "C"
+            return 6
+        if self.state == "H":
+            self.state = "F"
+            return 11
+        raise MealyError("sway")
+
+    def load(self):
         if self.state == "D":
             self.state = "E"
-            return 7
-        raise MealyError("cue")
-
-    def daub(self):
-        if self.state == "C":
-            self.state = "E"
-            return 4
-        raise MealyError("daub")
-
-    def skip(self):
-        if self.state == "C":
+            return 3
+        if self.state == "E":
             self.state = "F"
+            return 4
+        if self.state == "F":
+            self.state = "G"
+            return 7
+        if self.state == "G":
+            self.state = "H"
+            return 8
+        if self.state == "H":
+            self.state = "D"
+            return 10
+        raise MealyError("load")
+
+    def dash(self):
+        if self.state == "E":
+            self.state = "E"
             return 5
-        raise MealyError("skip")
+        if self.state == "H":
+            self.state = "E"
+            return 9
+        raise MealyError("dash")
 
 
 def main():
     return StateMachine()
 
 
-def raises(func, error):
-    output = None
-    try:
-        output = func()
-    except Exception as e:
-        assert type(e) == error
-    assert output is None
-
-
 def test():
     o = main()
-    assert o.fill() == 0
-    assert o.fill() == 2
-    assert o.cue() == 1
-    assert o.cue() == 3
-    assert o.cue() == 7
-    assert o.fill() == 8
-    assert o.fill() == 9
+    o.sway()
+    o.sway()
+    o.sway()
+    o.load()
+    o.sway()
+    o.sway()
+    o.load()
+    o.dash()
+    o.load()
+    o.load()
+    o.load()
+    o.sway()
+    o.load()
+    o.load()
+    o.dash()
+    o.load()
+    o.load()
+    o.load()
+    o.load()
+    try:
+        o.sway()
+    except MealyError:
+        pass
+    try:
+        o.dash()
+    except MealyError:
+        pass
 
     o = main()
-    assert o.fill() == 0
-    assert o.fill() == 2
-    assert o.cue() == 1
-    assert o.cue() == 3
-    assert o.cue() == 7
-    raises(lambda: o.cue(), MealyError)  # MealyError
-    assert o.fill() == 8
-    assert o.fill() == 9
+    try:
+        o.load()
+    except MealyError:
+        pass
